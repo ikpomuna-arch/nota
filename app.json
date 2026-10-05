@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Nota",
+    "slug": "nota",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "com.nota.app",
+      "versionCode": 1
+    },
+    "ios": {
+      "bundleIdentifier": "com.nota.app"
+    }
+  }
+}
