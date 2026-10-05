@@ -26,23 +26,28 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
 
       - name: Install Expo CLI
-        run: npm install -g expo-cli eas-cli
+        run: |
+          npm install -g expo-cli
 
       - name: Prebuild Android
-        run: npx expo prebuild --platform android --clean --yes
+        run: |
+          export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
+          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
+          npx expo prebuild --platform android --clean --yes
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
       - name: Build APK with Gradle
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease --stacktrace
           cd ..
 
       - name: Upload APK Artifact
@@ -52,16 +57,3 @@ jobs:
           name: nota-app-release
           path: android/app/build/outputs/apk/release/app-release.apk
           retention-days: 30
-
-      - name: Create GitHub Release
-        if: success()
-        uses: softprops/action-gh-release@v2
-        with:
-          files: android/app/build/outputs/apk/release/app-release.apk
-          tag_name: v${{ github.run_number }}
-          release_name: Nota APK v${{ github.run_number }}
-          body: |
-            ## Nota Android APK
-            Download the APK from the artifact or release asset and install on your Android device.
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
